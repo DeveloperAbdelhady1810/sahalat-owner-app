@@ -5,59 +5,62 @@ import 'package:shared_preferences/shared_preferences.dart';
 class API {
   // String get baseUrl => 'http://192.168.1.4/sahalat-api-backup-13-2-2026/public/api/owner';
   String get baseUrl => 'https://api.sahalat.sa.com/api/owner';
-  Future getDashboardKPIs() async {
+  /// Thrown when the server says the session is over (401/403): the screen must go back to the login page.
+  static final sessionExpired = Exception('session expired');
+
+  Future<Map<String, String>> _authHeaders() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    http.Response response = await http.post(
-      Uri.parse('$baseUrl/dashboard-kpis'),
-      body: {
-        'email': prefs.getString('email') ?? '',
-        'password': prefs.getString('password') ?? '',
-      }
-    );
+    final token = prefs.getString('token') ?? '';
+    return {
+      'Accept': 'application/json',
+      if (token.isNotEmpty) 'Authorization': 'Bearer $token',
+    };
+  }
+
+  Future getDashboardKPIs() async {
+    final response = await http
+        .get(Uri.parse('$baseUrl/dashboard-kpis'), headers: await _authHeaders())
+        .timeout(const Duration(seconds: 30));
     if (response.statusCode == 200) {
-      //     {
-      //   'profitToday': 156.30,
-      //   'profitWeek': 2244.55,
-      //   'profitMonth': 8975.20,
-      //   'pendingSettlementsTotal': 12800.25,
-      //   'completedSettlementsTotal': 47350.00,
-      //   'totalOrdersToday': 31,
-      //   'totalOrdersMonth': 1240,
-      //   'refundsCount': 12,
-      //   'refundsAmount': 345.80,
-      //   'pendingAccountsCount': 4,
-      //   'settlementIssues': 2,
-      //   'negativeBalances': 1,
-      // }
-      // print('Dashboard KPIs response: ${response.body}');
       return jsonDecode(response.body)['kpis'];
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      throw sessionExpired;
     } else {
-      print('Failed to load dashboard KPIs: ${response.statusCode} - ${response.body}');
-      throw Exception('Failed to load dashboard KPIs');
+      throw Exception('Failed to load dashboard KPIs (${response.statusCode})');
     }
   }
+
   Future<Map<String, dynamic>> login(String email, String password) async {
-        http.Response response = await http.post(
-      Uri.parse('$baseUrl/login'),
-      headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'email': email, 'password': password}),
-    );
-      // print('Login response: ${response.body}');
+    http.Response response = await http
+        .post(
+          Uri.parse('$baseUrl/login'),
+          headers: {'Content-Type': 'application/json', 'Accept': 'application/json'},
+          body: jsonEncode({'email': email, 'password': password}),
+        )
+        .timeout(const Duration(seconds: 20));
     if (response.statusCode == 200) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      Map<String, dynamic> data = jsonDecode(response.body)['data']['owner'];
-      String email = data['email'];
-      String password = data['password'];
-      String name = data['name'];
-      String id = data['id'].toString();
-      await prefs.setString('email', email);
-      await prefs.setString('password', password);
-      await prefs.setString('name', name);
-      await prefs.setString('id', id);
-      return jsonDecode(response.body);
-
+      final body = jsonDecode(response.body);
+      Map<String, dynamic> data = body['data']['owner'];
+      await prefs.setString('email', data['email']);
+      await prefs.setString('name', data['name']);
+      await prefs.setString('id', data['id'].toString());
+      await prefs.setString('token', body['data']['token'] ?? '');
+      await prefs.remove('password'); // the password (or its hash) is never kept on the phone
+      return body;
     } else {
       throw Exception('Failed to login');
     }
+  }
+
+  /// Ends the session on the server (best effort) and wipes everything stored on the phone.
+  Future<void> logout() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    try {
+      await http
+          .post(Uri.parse('$baseUrl/logout'), headers: await _authHeaders())
+          .timeout(const Duration(seconds: 10));
+    } catch (_) {}
+    await prefs.clear();
   }
 }
