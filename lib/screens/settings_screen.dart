@@ -1,5 +1,6 @@
 // Mirrors: SettingsScreen.tsx
 import 'package:flutter/material.dart';
+import 'package:sahalat_owner/services/api.dart';
 import 'package:go_router/go_router.dart';
 import '../design_tokens.dart';
 import '../l10n/strings_ar.dart';
@@ -96,7 +97,7 @@ class _SettingsScreenState extends State<SettingsScreen> {
               subtitle: Text('إنهاء الجلسة الحالية', style: const TextStyle(fontSize: 11, color: AppColors.textMuted)),
               trailing: null,
               onTap: () => showConfirmSheet(context, title: ArStrings.signOut, message: ArStrings.signOutConfirm, confirmLabel: ArStrings.signOut, danger: true)
-                .then((v) { if (v == true && context.mounted) context.go('/login'); }),
+                .then((v) async { if (v == true) { await API().logout(); if (context.mounted) context.go('/login'); } }),
             ),
           ]),
 

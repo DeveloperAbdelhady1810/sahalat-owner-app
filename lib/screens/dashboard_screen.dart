@@ -33,22 +33,43 @@ class _DashboardScreenState extends State<DashboardScreen> {
     _loadData();
   }
   late SharedPreferences prefs;
+  String? _error;
+
   Future<void> _loadData() async {
     prefs = widget.prefs;
-    // final kpis = await MockApiService.instance.getDashboardKPIs();
-    final kpis = await API().getDashboardKPIs();
-    final orders = kpis['orders'] as List<dynamic>;
-    final users = kpis['users'] as List<dynamic>;
-    final deliveries = kpis['deliveries'] as List<dynamic>;
-    final stores = kpis['sellers'] as List<dynamic>;
-    final itAdmins = kpis['itAdmins'] as List<dynamic>;
-    await prefs.setString('users', json.encode(users));
-    await prefs.setString('deliveries', json.encode(deliveries));
-    await prefs.setString('stores', json.encode(stores));
-    await prefs.setString('itAdmins', json.encode(itAdmins));
-    await prefs.setString('orders', json.encode(orders));
-    if (mounted) setState(() { _kpis = kpis; _loading = false; });
+    if (mounted) setState(() { _error = null; });
+    try {
+      final kpis = await API().getDashboardKPIs();
+      final orders = kpis['orders'] as List<dynamic>;
+      final users = kpis['users'] as List<dynamic>;
+      final deliveries = kpis['deliveries'] as List<dynamic>;
+      final stores = kpis['sellers'] as List<dynamic>;
+      final itAdmins = kpis['itAdmins'] as List<dynamic>;
+      await prefs.setString('users', json.encode(users));
+      await prefs.setString('deliveries', json.encode(deliveries));
+      await prefs.setString('stores', json.encode(stores));
+      await prefs.setString('itAdmins', json.encode(itAdmins));
+      await prefs.setString('orders', json.encode(orders));
+      if (mounted) setState(() { _kpis = kpis; _loading = false; });
+    } catch (e) {
+      if (identical(e, API.sessionExpired)) {
+        await API().logout();
+        if (mounted) context.go('/login');
+        return;
+      }
+      if (mounted) setState(() { _loading = false; _error = 'تعذر تحميل البيانات، تحقق من الاتصال وحاول مرة أخرى'; });
+    }
   }
+
+  /// 12800 -> "12.8K", 950 -> "950"; null (not loaded) -> "—". Never invents a number.
+  String _money(dynamic v) {
+    final n = double.tryParse(v?.toString() ?? '');
+    if (n == null) return '—';
+    if (n.abs() >= 1000) return '${(n / 1000).toStringAsFixed(1)}K';
+    return n.toStringAsFixed(n == n.roundToDouble() ? 0 : 2);
+  }
+
+  String _count(dynamic v) => v == null ? '—' : v.toString();
 
   double get _profit {
     if (_kpis == null) return 0;
@@ -69,7 +90,11 @@ class _DashboardScreenState extends State<DashboardScreen> {
       textDirection: TextDirection.rtl,
       child: Scaffold(
         backgroundColor: AppColors.background,
-        body: RefreshIndicator(
+        body: _loading
+            ? const Center(child: CircularProgressIndicator())
+            : (_error != null && _kpis == null)
+            ? _buildError()
+            : RefreshIndicator(
           onRefresh: _loadData,
           child: CustomScrollView(
             slivers: [
@@ -164,22 +189,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                         '${_profit.toStringAsFixed(2)} ${ArStrings.currency_symbol}',
                         style: const TextStyle(fontSize: 32, fontWeight: FontWeight.w800, color: Colors.white, letterSpacing: -1, fontFamily: 'Cairo'),
                       ),
-                      const SizedBox(height: 4),
-                      Row(
-                        mainAxisAlignment: MainAxisAlignment.end,
-                        children: [
-                          Text('مقارنةً بـ $_periodLabel السابق', style: TextStyle(fontSize: 11, color: Colors.white.withOpacity(0.5), fontFamily: 'Cairo')),
-                          const SizedBox(width: 6),
-                          Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                            decoration: BoxDecoration(
-                              color: Colors.white.withOpacity(0.2),
-                              borderRadius: BorderRadius.circular(AppRadius.full),
-                            ),
-                            child: const Text('↑ 12.4%', style: TextStyle(fontSize: 11, fontWeight: FontWeight.w700, color: Color(0xFF34D399), fontFamily: 'Cairo')),
-                          ),
-                        ],
-                      ),
                     ],
                   ),
                 ),
@@ -197,10 +206,10 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     childAspectRatio: 1.15,
                   ),
                   delegate: SliverChildListDelegate([
-                    KpiCard(label: ArStrings.pendingSettlements, value: '12.8K ${ArStrings.sar_symbol}', sub: ArStrings.acrossAllAccounts, icon: Icons.swap_horiz, color: AppColors.warning, bgColor: AppColors.warningLight),
-                    KpiCard(label: ArStrings.ordersToday, value: '${_kpis?['totalOrdersToday'] ?? 31}', sub: '1,240 هذا الشهر', icon: Icons.flash_on_outlined, color: AppColors.success, bgColor: AppColors.successLight, trend: {'value': '8.2%', 'positive': true}),
-                    KpiCard(label: ArStrings.refunds, value: '${(_kpis?['refundsAmount'] ?? 345.80).toStringAsFixed(0)} ${ArStrings.sar_symbol}', sub: '${_kpis?['refundsCount'] ?? 12} طلبات', icon: Icons.cancel_outlined, color: AppColors.danger, bgColor: AppColors.dangerLight),
-                    KpiCard(label: ArStrings.completedSettlements, value: '47.4K ${ArStrings.sar_symbol}', sub: ArStrings.total, icon: Icons.check_circle_outline, color: AppColors.info, bgColor: AppColors.infoLight),
+                    KpiCard(label: ArStrings.pendingSettlements, value: '${_money(_kpis?['pendingSettlementsTotal'])} ${ArStrings.sar_symbol}', sub: ArStrings.acrossAllAccounts, icon: Icons.swap_horiz, color: AppColors.warning, bgColor: AppColors.warningLight),
+                    KpiCard(label: ArStrings.ordersToday, value: _count(_kpis?['totalOrdersToday']), sub: '${_count(_kpis?['totalOrdersMonth'])} هذا الشهر', icon: Icons.flash_on_outlined, color: AppColors.success, bgColor: AppColors.successLight),
+                    KpiCard(label: ArStrings.refunds, value: '${_money(_kpis?['refundsAmount'])} ${ArStrings.sar_symbol}', sub: '${_count(_kpis?['refundsCount'])} طلبات', icon: Icons.cancel_outlined, color: AppColors.danger, bgColor: AppColors.dangerLight),
+                    KpiCard(label: ArStrings.completedSettlements, value: '${_money(_kpis?['completedSettlementsTotal'])} ${ArStrings.sar_symbol}', sub: ArStrings.total, icon: Icons.check_circle_outline, color: AppColors.info, bgColor: AppColors.infoLight),
                   ]),
                 ),
               ),
@@ -211,9 +220,12 @@ class _DashboardScreenState extends State<DashboardScreen> {
                 sliver: SliverList(
                   delegate: SliverChildListDelegate([
                     for (final alert in [
-                      {'msg': '${_kpis?['pendingAccountsCount'] ?? 4} حسابات في انتظار الموافقة', 'type': 'warning', 'action': 'مراجعة', 'path': '/accounts'},
-                      {'msg': '${_kpis?['settlementIssues'] ?? 2} مشكلات تسوية مكتشفة', 'type': 'danger', 'action': 'عرض', 'path': '/settings/disputes'},
-                      {'msg': '${_kpis?['negativeBalances'] ?? 1} رصيد سلبي مكتشف', 'type': 'info', 'action': 'إصلاح', 'path': '/settlements'},
+                      if (((_kpis?['pendingAccountsCount'] ?? 0) as num) > 0)
+                        {'msg': '${_kpis?['pendingAccountsCount']} حسابات في انتظار الموافقة', 'type': 'warning', 'action': 'مراجعة', 'path': '/accounts'},
+                      if (((_kpis?['settlementIssues'] ?? 0) as num) > 0)
+                        {'msg': '${_kpis?['settlementIssues']} مشكلات تسوية مكتشفة', 'type': 'danger', 'action': 'عرض', 'path': '/settings/disputes'},
+                      if (((_kpis?['negativeBalances'] ?? 0) as num) > 0)
+                        {'msg': '${_kpis?['negativeBalances']} رصيد سلبي مكتشف', 'type': 'info', 'action': 'إصلاح', 'path': '/settlements'},
                     ]) _buildAlert(context, alert),
                   ]),
                 ),
@@ -244,6 +256,31 @@ class _DashboardScreenState extends State<DashboardScreen> {
               const SliverPadding(padding: EdgeInsets.only(bottom: 24)),
             ],
           ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildError() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(24),
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const Icon(Icons.cloud_off_outlined, size: 48, color: AppColors.gray300),
+            const SizedBox(height: 12),
+            Text(_error ?? '', textAlign: TextAlign.center, style: const TextStyle(fontFamily: 'Cairo', color: AppColors.textSecondary)),
+            const SizedBox(height: 16),
+            ElevatedButton.icon(
+              onPressed: () {
+                setState(() { _loading = true; });
+                _loadData();
+              },
+              icon: const Icon(Icons.refresh),
+              label: const Text('إعادة المحاولة'),
+            ),
+          ],
         ),
       ),
     );
