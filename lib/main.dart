@@ -19,12 +19,18 @@ import 'screens/settings_screen.dart';
 import 'screens/audit_logs_screen.dart';
 import 'screens/reports_screen.dart';
 import 'widgets/main_shell.dart';
+import 'package:sahalat_owner/services/secure_token_store.dart';
 import 'package:sahalat_owner/services/app_update_guard.dart';
 
 SharedPreferences? prefs;
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   prefs = await SharedPreferences.getInstance();
+  // login token: secure storage; an older plain SharedPreferences copy is moved once, then wiped
+  await SecureTokenStore.init(
+    legacyRead: () async => prefs!.getString('token'),
+    legacyWipe: () async => prefs!.remove('token'),
+  );
   SystemChrome.setPreferredOrientations([DeviceOrientation.portraitUp]);
   SystemChrome.setSystemUIOverlayStyle(SystemUiOverlayStyle.dark);
 

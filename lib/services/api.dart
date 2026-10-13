@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:sahalat_owner/services/secure_token_store.dart';
 class API {
   // String get baseUrl => 'http://192.168.1.4/sahalat-api-backup-13-2-2026/public/api/owner';
   // override for local testing: flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
@@ -11,8 +12,7 @@ class API {
   static final sessionExpired = Exception('session expired');
 
   Future<Map<String, String>> _authHeaders() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    final token = prefs.getString('token') ?? '';
+    final token = SecureTokenStore.token ?? '';
     return {
       'Accept': 'application/json',
       if (token.isNotEmpty) 'Authorization': 'Bearer $token',
@@ -63,7 +63,7 @@ class API {
       await prefs.setString('email', data['email']);
       await prefs.setString('name', data['name']);
       await prefs.setString('id', data['id'].toString());
-      await prefs.setString('token', body['data']['token'] ?? '');
+      await SecureTokenStore.save((body['data']['token'] ?? '').toString());
       await prefs.remove('password'); // the password (or its hash) is never kept on the phone
       return body;
     } else {
@@ -80,5 +80,6 @@ class API {
           .timeout(const Duration(seconds: 10));
     } catch (_) {}
     await prefs.clear();
+    await SecureTokenStore.clear();
   }
 }
