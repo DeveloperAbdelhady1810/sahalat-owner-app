@@ -21,9 +21,12 @@ import 'screens/reports_screen.dart';
 import 'widgets/main_shell.dart';
 import 'package:sahalat_owner/services/secure_token_store.dart';
 import 'package:sahalat_owner/services/app_update_guard.dart';
+import 'package:sahalat_owner/services/app_guard.dart';
 
 SharedPreferences? prefs;
-void main() async {
+void main() => AppGuard.run(_main);
+
+Future<void> _main() async {
   WidgetsFlutterBinding.ensureInitialized();
   prefs = await SharedPreferences.getInstance();
   // login token: secure storage; an older plain SharedPreferences copy is moved once, then wiped
@@ -107,7 +110,7 @@ class SahalatOwnerApp extends StatelessWidget {
         debugShowCheckedModeBanner: false,
         routerConfig: _router,
         // blocks the app with an update screen when the server says this version is below the minimum (set in IT settings)
-        builder: (context, child) => AppUpdateGuard(app: 'owner', baseApiUrl: const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://api.sahalat.sa.com/api'), child: child ?? const SizedBox.shrink()),
+        builder: (context, child) => AppUpdateGuard(app: 'owner', baseApiUrl: const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://api.sahalat.sa.com/api'), child: OfflineBanner(child: child ?? const SizedBox.shrink())),
         locale: const Locale('ar', 'SA'),
         supportedLocales: const [Locale('ar', 'SA')],
         localizationsDelegates: const [
