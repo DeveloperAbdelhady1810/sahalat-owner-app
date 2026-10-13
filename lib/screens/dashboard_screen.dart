@@ -222,10 +222,6 @@ class _DashboardScreenState extends State<DashboardScreen> {
                     for (final alert in [
                       if (((_kpis?['pendingAccountsCount'] ?? 0) as num) > 0)
                         {'msg': '${_kpis?['pendingAccountsCount']} حسابات في انتظار الموافقة', 'type': 'warning', 'action': 'مراجعة', 'path': '/accounts'},
-                      if (((_kpis?['settlementIssues'] ?? 0) as num) > 0)
-                        {'msg': '${_kpis?['settlementIssues']} مشكلات تسوية مكتشفة', 'type': 'danger', 'action': 'عرض', 'path': '/settings/disputes'},
-                      if (((_kpis?['negativeBalances'] ?? 0) as num) > 0)
-                        {'msg': '${_kpis?['negativeBalances']} رصيد سلبي مكتشف', 'type': 'info', 'action': 'إصلاح', 'path': '/settlements'},
                     ]) _buildAlert(context, alert),
                   ]),
                 ),
@@ -242,10 +238,8 @@ class _DashboardScreenState extends State<DashboardScreen> {
                       const SizedBox(height: 12),
                       Row(
                         children: [
-                          _quickAction(context, Icons.add, ArStrings.createRule, AppColors.primary, AppColors.primaryLight, '/settings/commission-rules/create'),
-                          _quickAction(context, Icons.swap_horiz, ArStrings.settleStore, AppColors.success, AppColors.successLight, '/settlements'),
                           _quickAction(context, Icons.check_circle_outline, ArStrings.approveAccounts, AppColors.warning, AppColors.warningLight, '/accounts'),
-                          _quickAction(context, Icons.bar_chart_outlined, ArStrings.viewReports, AppColors.info, AppColors.infoLight, '/settings/reports'),
+                          _quickAction(context, Icons.description_outlined, ArStrings.auditLogs, AppColors.info, AppColors.infoLight, '/settings/audit-logs'),
                         ],
                       ),
                     ],

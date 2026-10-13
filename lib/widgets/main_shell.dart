@@ -14,9 +14,8 @@ class MainShell extends StatelessWidget {
   int _currentIndex(BuildContext context) {
     final location = GoRouterState.of(context).uri.toString();
     if (location.startsWith('/profits')) return 1;
-    if (location.startsWith('/settlements')) return 2;
-    if (location.startsWith('/accounts')) return 3;
-    if (location.startsWith('/settings')) return 4;
+    if (location.startsWith('/accounts')) return 2;
+    if (location.startsWith('/settings')) return 3;
     return 0;
   }
 
@@ -41,9 +40,9 @@ class MainShell extends StatelessWidget {
                 children: [
                   _NavItem(icon: Icons.dashboard_outlined, activeIcon: Icons.dashboard, label: 'الرئيسية', isActive: index == 0, onTap: () => context.go('/dashboard')),
                   _NavItem(icon: Icons.trending_up_outlined, activeIcon: Icons.trending_up, label: 'الأرباح', isActive: index == 1, onTap: () => context.go('/profits')),
-                  _NavItem(icon: Icons.swap_horiz_outlined, activeIcon: Icons.swap_horiz, label: 'التسويات', isActive: index == 2, onTap: () => context.go('/settlements')),
-                  _NavItem(icon: Icons.people_outline, activeIcon: Icons.people, label: 'الحسابات', isActive: index == 3, onTap: () => context.go('/accounts')),
-                  _NavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings, label: 'الإعدادات', isActive: index == 4, onTap: () => context.go('/settings')),
+                  // التسويات: مخفية حتى تتوفر بيانات حقيقية من الخادم (كانت بيانات تجريبية)
+                  _NavItem(icon: Icons.people_outline, activeIcon: Icons.people, label: 'الحسابات', isActive: index == 2, onTap: () => context.go('/accounts')),
+                  _NavItem(icon: Icons.settings_outlined, activeIcon: Icons.settings, label: 'الإعدادات', isActive: index == 3, onTap: () => context.go('/settings')),
                 ],
               ),
             ),

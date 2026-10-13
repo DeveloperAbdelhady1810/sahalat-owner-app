@@ -13,17 +13,13 @@ import 'screens/login_screen.dart';
 import 'screens/dashboard_screen.dart';
 import 'screens/profits_screen.dart';
 import 'screens/profit_details_screen.dart';
-import 'screens/settlements_screen.dart';
-import 'screens/settlement_details_screen.dart';
 import 'screens/accounts_screen.dart';
 import 'screens/account_details_screen.dart';
 import 'screens/settings_screen.dart';
-import 'screens/commission_rules_screen.dart';
-import 'screens/create_rule_screen.dart';
 import 'screens/audit_logs_screen.dart';
 import 'screens/reports_screen.dart';
-import 'screens/disputes_screen.dart';
 import 'widgets/main_shell.dart';
+import 'package:sahalat_owner/services/app_update_guard.dart';
 
 SharedPreferences? prefs;
 void main() async {
@@ -61,19 +57,6 @@ final _router = GoRouter(
           ],
         ),
         GoRoute(
-          path: '/settlements',
-          builder: (context, state) => const SettlementsScreen(),
-          routes: [
-            GoRoute(
-              path: ':entityType/:entityId',
-              builder: (context, state) => SettlementDetailsScreen(
-                entityType: state.pathParameters['entityType']!,
-                entityId: state.pathParameters['entityId']!,
-              ),
-            ),
-          ],
-        ),
-        GoRoute(
           path: '/accounts',
           builder: (context, state) => const AccountsScreen(),
           routes: [
@@ -91,26 +74,12 @@ final _router = GoRouter(
           builder: (context, state) => const SettingsScreen(),
           routes: [
             GoRoute(
-              path: 'commission-rules',
-              builder: (context, state) => const CommissionRulesScreen(),
-              routes: [
-                GoRoute(
-                  path: 'create',
-                  builder: (context, state) => const CreateRuleScreen(),
-                ),
-              ],
-            ),
-            GoRoute(
               path: 'audit-logs',
               builder: (context, state) => const AuditLogsScreen(),
             ),
             GoRoute(
               path: 'reports',
               builder: (context, state) => const ReportsScreen(),
-            ),
-            GoRoute(
-              path: 'disputes',
-              builder: (context, state) => const DisputesScreen(),
             ),
           ],
         ),
@@ -131,6 +100,8 @@ class SahalatOwnerApp extends StatelessWidget {
         title: 'سهلات المالك',
         debugShowCheckedModeBanner: false,
         routerConfig: _router,
+        // blocks the app with an update screen when the server says this version is below the minimum (set in IT settings)
+        builder: (context, child) => AppUpdateGuard(app: 'owner', baseApiUrl: const String.fromEnvironment('API_BASE_URL', defaultValue: 'https://api.sahalat.sa.com/api'), child: child ?? const SizedBox.shrink()),
         locale: const Locale('ar', 'SA'),
         supportedLocales: const [Locale('ar', 'SA')],
         localizationsDelegates: const [

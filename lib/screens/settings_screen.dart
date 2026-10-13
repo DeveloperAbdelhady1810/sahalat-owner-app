@@ -50,17 +50,8 @@ class _SettingsScreenState extends State<SettingsScreen> {
           ),
           const SizedBox(height: AppSpacing.lg),
 
-          _section(ArStrings.financeCommission, [
-            _navItem(context, Icons.percent_outlined, ArStrings.commissionRules, '٦ قواعد نشطة', AppColors.primaryLight, AppColors.primary, '/settings/commission-rules', badge: '٦'),
-            _toggleItem(ArStrings.taxHandling, 'تضمين الضريبة في أساس العمولة', Icons.attach_money_outlined, AppColors.successLight, AppColors.success, 'tax'),
-            _toggleItem(ArStrings.refundReverseCommission, 'عكس تلقائي عند إلغاء الطلبات', Icons.refresh_outlined, AppColors.orangeLight, AppColors.orange, 'refundReverse'),
-          ]),
-          const SizedBox(height: AppSpacing.md),
-
           _section(ArStrings.reportsAudit, [
-            _navItem(context, Icons.description_outlined, ArStrings.auditLogs, 'جميع إجراءات النظام', AppColors.infoLight, AppColors.info, '/settings/audit-logs', badge: 'جديد'),
-            _navItem(context, Icons.bar_chart_outlined, ArStrings.reportsCenter, 'تصدير تقارير الأرباح والتسويات', AppColors.successLight, AppColors.success, '/settings/reports'),
-            _navItem(context, Icons.warning_amber_rounded, ArStrings.financialIssues, '٣ نزاعات مفتوحة', AppColors.dangerLight, AppColors.danger, '/settings/disputes', badge: '٣', badgeColor: AppColors.danger),
+            _navItem(context, Icons.description_outlined, ArStrings.auditLogs, 'تسجيلات الدخول والموافقات والإعدادات وعرض المستندات', AppColors.infoLight, AppColors.info, '/settings/audit-logs'),
           ]),
           const SizedBox(height: AppSpacing.md),
 

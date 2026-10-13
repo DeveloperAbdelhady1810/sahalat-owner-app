@@ -32,6 +32,22 @@ class API {
     }
   }
 
+  /// Audit trail (read-only). `action` = exact name or "prefix.*"; paged 30 at a time.
+  Future<Map<String, dynamic>> getAuditLogs({String? action, int page = 1}) async {
+    final uri = Uri.parse('$baseUrl/audit-logs').replace(queryParameters: {
+      if (action != null) 'action': action,
+      'page': '$page',
+      'per_page': '30',
+    });
+    final response = await http.get(uri, headers: await _authHeaders()).timeout(const Duration(seconds: 30));
+    if (response.statusCode == 200) {
+      return jsonDecode(response.body) as Map<String, dynamic>;
+    } else if (response.statusCode == 401 || response.statusCode == 403) {
+      throw sessionExpired;
+    }
+    throw Exception('Failed to load audit logs (${response.statusCode})');
+  }
+
   Future<Map<String, dynamic>> login(String email, String password) async {
     http.Response response = await http
         .post(
