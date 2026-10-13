@@ -63,7 +63,7 @@ class _ProfitsScreenState extends State<ProfitsScreen> {
   Future<void> _loadOrders() async {
     // final orders = await MockApiService.instance.getOrders();
     final orders = prefs!.getString("orders") != null?
-      json.decode(prefs!.getString('orders')!)
+      json.decode(prefs!.getString('orders') ?? '[]')
       : [];
     List<OrderEntity> allOrders = [];
     for (Map order in orders) {
@@ -85,16 +85,16 @@ class _ProfitsScreenState extends State<ProfitsScreen> {
         store: order['seller']!=null?(id:order['seller']['id'].toString(),name:order['seller']['name']??''):(id: '', name: 'طلب نقل'),
         driver: (id:order['delivery']['id'].toString() ,name:order['delivery']['name']),
         user: (id:order['user']['id'].toString(),name:order['user']['name']),
-        subtotal: double.parse(order['total'].toString()),
-        deliveryFee: double.parse(order['deliveryTotal']??"0"),
-        serviceFee: double.parse(order['total'].toString())*0.05,
+        subtotal: (double.tryParse((order['total'].toString()).toString()) ?? 0.0),
+        deliveryFee: (double.tryParse((order['deliveryTotal']??"0").toString()) ?? 0.0),
+        serviceFee: (double.tryParse((order['total'].toString()).toString()) ?? 0.0)*0.05,
         discount: order['discount']??0,
-        tax: double.parse(order['total'].toString())*0.14,
-        total: double.parse(order['total'].toString()),
+        tax: (double.tryParse((order['total'].toString()).toString()) ?? 0.0)*0.14,
+        total: (double.tryParse((order['total'].toString()).toString()) ?? 0.0),
         commissionBase: CommissionBase.orderTotal,
         commissionRule: 'fixed',
         commissionRate: 0.05,
-        ownerProfit: double.parse(order['total'].toString())*0.05,
+        ownerProfit: (double.tryParse((order['total'].toString()).toString()) ?? 0.0)*0.05,
         status: OrderStatus.confirmed,
         paymentMethod: order['payment_method']??'Paymob',
         city: order['city']??''

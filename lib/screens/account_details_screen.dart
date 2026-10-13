@@ -35,7 +35,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       // = (await MockApiService.instance.getUsers()).firstWhere((u) => u.id == widget.accountId, orElse: () => throw Exception());
     if (widget.accountType == 'stores'){
       final s = prefs!.getString("stores") != null?
-        json.decode(prefs!.getString('stores')!)
+        json.decode(prefs!.getString('stores') ?? '[]')
         : [];
       Map store = (s as List).firstWhere((s) => s['id'].toString() == widget.accountId, orElse: () => throw Exception());
       final utcDateTime = DateTime.parse(store['created_at']);
@@ -51,21 +51,21 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         email: store['email'],
         category: store['category'],
         commissionRate: 0.05,
-        currentBalance: double.parse(store['wallet']??"0"),
+        currentBalance: (double.tryParse((store['wallet']??"0").toString()) ?? 0.0),
         hasMismatch: false,
         joinedAt: localDate,
-        netPayable: double.parse(store['wallet']??"0") - (double.parse(store['wallet']??"0") * 0.05),
-        ownerRetained: (double.parse(store['wallet']??"0") * 0.05).toDouble(),
-        rating: store['rating'] != null ? double.parse(store['rating'].toString()) : 0.0,
-        totalCommission: double.parse(store['wallet']??"0") * 0.05,
+        netPayable: (double.tryParse((store['wallet']??"0").toString()) ?? 0.0) - ((double.tryParse((store['wallet']??"0").toString()) ?? 0.0) * 0.05),
+        ownerRetained: ((double.tryParse((store['wallet']??"0").toString()) ?? 0.0) * 0.05).toDouble(),
+        rating: store['rating'] != null ? (double.tryParse((store['rating'].toString()).toString()) ?? 0.0) : 0.0,
+        totalCommission: (double.tryParse((store['wallet']??"0").toString()) ?? 0.0) * 0.05,
         totalPayouts: 0.0,
         totalRefunds: 0.0,
-        totalSales: store['orders'].fold(0.0, (sum, o) => sum + double.parse(o['total'].toString())),
-        status: store['account_status']=="active"?AccountStatus.activated:AccountStatus.values.firstWhere((s) => s.name == store['account_status'])
+        totalSales: store['orders'].fold(0.0, (sum, o) => sum + (double.tryParse((o['total'].toString()).toString()) ?? 0.0)),
+        status: store['account_status']=="active"?AccountStatus.activated:AccountStatus.values.firstWhere((s) => s.name == store['account_status'], orElse: () => AccountStatus.pending)
       );
     }else if (widget.accountType == 'drivers') {
       final d = prefs!.getString("deliveries") != null?
-        json.decode(prefs!.getString('deliveries')!)
+        json.decode(prefs!.getString('deliveries') ?? '[]')
         : [];
       Map delivery = (d as List).firstWhere((d) => d['id'].toString() == widget.accountId, orElse: () => throw Exception());
       final utcDateTime = DateTime.parse(delivery['created_at']);
@@ -79,23 +79,23 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         city: delivery['city']??'غير محدد',
         ordersCount: delivery['orders'].length + delivery['transportorders'].length,
         email: delivery['email'],
-        currentBalance: double.parse(delivery['wallet']??"0"),
+        currentBalance: (double.tryParse((delivery['wallet']??"0").toString()) ?? 0.0),
         joinedAt: localDate,
         commissionRate: 0.05,
         // rating: delivery['rating'] != null ? double.parse(delivery['rating'].toString()) : 0.0,
-        totalEarnings: double.parse(delivery['wallet']??"0"),
+        totalEarnings: (double.tryParse((delivery['wallet']??"0").toString()) ?? 0.0),
         totalPayouts: 0.0,
         // totalRefunds: 0.0,
         hasMismatch: false,
-        netPayable: double.parse(delivery['wallet']??"0") - (double.parse(delivery['wallet']??"0") * 0.05),
-        totalCommission: double.parse(delivery['wallet']??"0") * 0.05,
+        netPayable: (double.tryParse((delivery['wallet']??"0").toString()) ?? 0.0) - ((double.tryParse((delivery['wallet']??"0").toString()) ?? 0.0) * 0.05),
+        totalCommission: (double.tryParse((delivery['wallet']??"0").toString()) ?? 0.0) * 0.05,
         vehicle: delivery['car_type'],
         totalDeliveries: delivery['orders'].length + delivery['transportorders'].length,
         status: delivery['active'] == 'true' ? AccountStatus.activated : AccountStatus.deactivated
       );
     }else if (widget.accountType == 'it-admins') {
       final a = prefs!.getString("itAdmins") != null?
-        json.decode(prefs!.getString('itAdmins')!)
+        json.decode(prefs!.getString('itAdmins') ?? '[]')
         : [];
       Map itadmin = (a as List).firstWhere((a) => a['id'].toString() == widget.accountId, orElse: () => throw Exception());
       final utcDateTime = DateTime.parse(itadmin['created_at']);
@@ -116,7 +116,7 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
       );
     }else {
       final u = prefs!.getString("users") != null?
-        json.decode(prefs!.getString('users')!)
+        json.decode(prefs!.getString('users') ?? '[]')
         : [];
       Map user = (u as List).firstWhere((u) => u['id'].toString() == widget.accountId, orElse: () => throw Exception());
       final utcDateTime = DateTime.parse(user['created_at']);
@@ -132,11 +132,11 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         email: user['email']??'غير محدد',
         joinedAt: localDate,
         hasMismatch: false,
-        totalSpent: user['orders'].fold(0.0, (sum, o) => sum + double.parse(o['total'].toString())),
+        totalSpent: user['orders'].fold(0.0, (sum, o) => sum + (double.tryParse((o['total'].toString()).toString()) ?? 0.0)),
         commissionRate: 0.05,
-        currentBalance: double.parse(user['wallet']??"0"),
-        netPayable: double.parse(user['wallet']??"0") - (double.parse(user['wallet']??"0") * 0.05),
-        totalCommission: double.parse(user['wallet']??"0") * 0.05,
+        currentBalance: (double.tryParse((user['wallet']??"0").toString()) ?? 0.0),
+        netPayable: (double.tryParse((user['wallet']??"0").toString()) ?? 0.0) - ((double.tryParse((user['wallet']??"0").toString()) ?? 0.0) * 0.05),
+        totalCommission: (double.tryParse((user['wallet']??"0").toString()) ?? 0.0) * 0.05,
         totalPayouts: 0.0,
         totalRefunds: 0.0,
         status: user['status'] == 'true' ? AccountStatus.activated : AccountStatus.deactivated

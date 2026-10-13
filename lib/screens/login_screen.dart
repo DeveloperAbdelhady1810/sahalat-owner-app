@@ -8,6 +8,7 @@ import 'package:go_router/go_router.dart';
 import 'package:sahalat_owner/services/api.dart';
 import '../design_tokens.dart';
 import '../l10n/strings_ar.dart';
+import 'package:flutter/foundation.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -40,7 +41,8 @@ class _LoginScreenState extends State<LoginScreen> {
         setState(() { _error = ArStrings.invalidCredentials; });
       }
     } catch (e) {
-      print(e);
+      if (kDebugMode) print(e);
+      if (!mounted) return;
       setState(() { _error = ArStrings.invalidCredentials; });
     } finally {
       if (mounted) setState(() { _loading = false; });

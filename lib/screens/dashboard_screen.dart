@@ -73,9 +73,9 @@ class _DashboardScreenState extends State<DashboardScreen> {
 
   double get _profit {
     if (_kpis == null) return 0;
-    if (_period == 'today') return double.parse(_kpis!['profitToday'].toString());
-    if (_period == 'week') return double.parse(_kpis!['profitWeek'].toString());
-    return double.parse(_kpis!['profitMonth'].toString());
+    if (_period == 'today') return (double.tryParse((_kpis!['profitToday'].toString()).toString()) ?? 0.0);
+    if (_period == 'week') return (double.tryParse((_kpis!['profitWeek'].toString()).toString()) ?? 0.0);
+    return (double.tryParse((_kpis!['profitMonth'].toString()).toString()) ?? 0.0);
   }
 
   String get _periodLabel {

@@ -24,7 +24,7 @@ class API {
         .get(Uri.parse('$baseUrl/dashboard-kpis'), headers: await _authHeaders())
         .timeout(const Duration(seconds: 30));
     if (response.statusCode == 200) {
-      return jsonDecode(response.body)['kpis'];
+      return _safeDecode(response.body)['kpis'];
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       throw sessionExpired;
     } else {
@@ -41,7 +41,7 @@ class API {
     });
     final response = await http.get(uri, headers: await _authHeaders()).timeout(const Duration(seconds: 30));
     if (response.statusCode == 200) {
-      return jsonDecode(response.body) as Map<String, dynamic>;
+      return _safeDecode(response.body) as Map<String, dynamic>;
     } else if (response.statusCode == 401 || response.statusCode == 403) {
       throw sessionExpired;
     }
@@ -58,7 +58,7 @@ class API {
         .timeout(const Duration(seconds: 20));
     if (response.statusCode == 200) {
       SharedPreferences prefs = await SharedPreferences.getInstance();
-      final body = jsonDecode(response.body);
+      final body = _safeDecode(response.body);
       Map<String, dynamic> data = body['data']['owner'];
       await prefs.setString('email', data['email']);
       await prefs.setString('name', data['name']);
@@ -81,5 +81,14 @@ class API {
     } catch (_) {}
     await prefs.clear();
     await SecureTokenStore.clear();
+  }
+
+  /// An answer that is not JSON (an HTML error page, an empty body) must not crash the screen: it reads as an empty object.
+  dynamic _safeDecode(String body) {
+    try {
+      return jsonDecode(body);
+    } catch (_) {
+      return <String, dynamic>{};
+    }
   }
 }
