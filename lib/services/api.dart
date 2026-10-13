@@ -4,7 +4,9 @@ import 'package:http/http.dart' as http;
 import 'package:shared_preferences/shared_preferences.dart';
 class API {
   // String get baseUrl => 'http://192.168.1.4/sahalat-api-backup-13-2-2026/public/api/owner';
-  String get baseUrl => 'https://api.sahalat.sa.com/api/owner';
+  // override for local testing: flutter run --dart-define=API_BASE_URL=http://10.0.2.2:8000/api
+  static const String _apiBase = String.fromEnvironment('API_BASE_URL', defaultValue: 'https://api.sahalat.sa.com/api');
+  String get baseUrl => '$_apiBase/owner';
   /// Thrown when the server says the session is over (401/403): the screen must go back to the login page.
   static final sessionExpired = Exception('session expired');
 
