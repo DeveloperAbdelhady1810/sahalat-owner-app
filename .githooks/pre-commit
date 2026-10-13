@@ -1,0 +1,15 @@
+#!/bin/sh
+# pre-commit: stop a commit that contains a secret. Uses gitleaks when installed (https://github.com/gitleaks/gitleaks),
+# otherwise a built-in pattern check. Enable once per clone:  git config core.hooksPath .githooks
+if command -v gitleaks >/dev/null 2>&1; then
+  gitleaks protect --staged --redact --config "$(git rev-parse --show-toplevel)/.gitleaks.toml" -v || { echo "gitleaks found a secret: commit refused"; exit 1; }
+  exit 0
+fi
+PAT='AIza[0-9A-Za-z_-]{35}|AKIA[0-9A-Z]{16}|ASIA[0-9A-Z]{16}|-----BEGIN [A-Z ]*PRIVATE KEY-----|ZXlK[A-Za-z0-9_-]{60,}|sk_(live|test)_[0-9A-Za-z]{16,}|eyJ[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{15,}\.[A-Za-z0-9_-]{10,}'
+HITS=$(git diff --cached -U0 --no-color | grep -E '^\+' | grep -Ev '^\+\+\+' | grep -E "$PAT" | sed -E 's/(.{12}).*/\1.../' | head -5)
+if [ -n "$HITS" ]; then
+  echo "Possible secret in the staged changes (masked):"; echo "$HITS"
+  echo "Move it to .env / --dart-define / local.properties. gitleaks is not installed, so this is the built-in check."
+  exit 1
+fi
+exit 0

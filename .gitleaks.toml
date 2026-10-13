@@ -1,0 +1,19 @@
+title = "Sahalat gitleaks rules"
+[extend]
+useDefault = true
+
+[[rules]]
+id = "google-api-key"
+description = "Google API key"
+regex = '''AIza[0-9A-Za-z_\-]{35}'''
+keywords = ["aiza"]
+
+[[rules]]
+id = "paymob-token"
+description = "Paymob / JWT style token"
+regex = '''ZXlK[A-Za-z0-9_\-]{60,}'''
+keywords = ["zxlk"]
+
+[allowlist]
+description = "documentation and lock files"
+paths = ['''(^|/)(SECRETS_INVENTORY|SECURITY)\.md$''', '''(^|/)pubspec\.lock$''', '''(^|/)package-lock\.json$''', '''(^|/)yarn\.lock$''', '''(^|/)composer\.lock$''']

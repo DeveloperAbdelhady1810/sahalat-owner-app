@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Release: HTTPS only, system CAs only. No cleartext anywhere. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="false">
+        <trust-anchors>
+            <certificates src="system" />
+        </trust-anchors>
+    </base-config>
+    <domain-config cleartextTrafficPermitted="false">
+        <domain includeSubdomains="false">api.sahalat.sa.com</domain>
+        <!-- CERTIFICATE PINNING (not enabled yet, see SECRETS_INVENTORY.md / MOBILE_SECURITY.md):
+             a wrong pin locks every user out until a new build is released, so the pins must come from the real certificate chain
+             (leaf + a backup/intermediate) and expire with a date. Template:
+        <pin-set expiration="2027-06-30">
+            <pin digest="SHA-256">BASE64_SPKI_HASH_OF_CURRENT_CERT=</pin>
+            <pin digest="SHA-256">BASE64_SPKI_HASH_OF_BACKUP_OR_INTERMEDIATE=</pin>
+        </pin-set>
+        -->
+    </domain-config>
+</network-security-config>
