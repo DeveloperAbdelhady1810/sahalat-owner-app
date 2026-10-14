@@ -57,3 +57,6 @@ ios/Flutter/Secrets.xcconfig
 *.jks
 key.properties
 local.properties
+
+# Xcode/Flutter iOS build output (was tracked by mistake: contained local paths of a build machine)
+/ios/build/
