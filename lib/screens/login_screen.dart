@@ -33,7 +33,6 @@ class _LoginScreenState extends State<LoginScreen> {
     }
     setState(() { _loading = true; _error = ''; });
     try {
-      // final result = await MockApiService.instance.login(_emailController.text, _passwordController.text);
       final result = await API().login(_emailController.text, _passwordController.text);
       if (result['success'] == true && mounted) {
         context.go('/dashboard');

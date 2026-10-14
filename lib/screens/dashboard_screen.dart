@@ -11,7 +11,6 @@ import 'package:sahalat_owner/models/models.dart';
 import 'package:sahalat_owner/services/api.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../design_tokens.dart';
-import '../services/mock_api_service.dart';
 import '../widgets/common_widgets.dart';
 import '../l10n/strings_ar.dart';
 

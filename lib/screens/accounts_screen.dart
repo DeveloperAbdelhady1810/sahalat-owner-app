@@ -8,7 +8,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../design_tokens.dart';
 import '../l10n/strings_ar.dart';
 import '../models/models.dart';
-import '../services/mock_api_service.dart';
 import '../widgets/common_widgets.dart';
 
 class AccountsScreen extends StatefulWidget {
@@ -40,7 +39,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
   }
 
   Future<void> _load() async {
-    // final s = await MockApiService.instance.getStores();
     
     final SharedPreferences prefs = await SharedPreferences.getInstance();
       final s = (json.decode(prefs.getString('stores') ?? '[]') as List<dynamic>).map((e) {
@@ -71,9 +69,7 @@ class _AccountsScreenState extends State<AccountsScreen> {
         status: e['account_status']=="active"?AccountStatus.activated:AccountStatus.values.firstWhere((s) => s.name == e['account_status'], orElse: () => AccountStatus.pending)
       );
     }).toList();
-    // final d = await MockApiService.instance.getDrivers();
     final d = (json.decode(prefs.getString('deliveries') ?? '[]') as List<dynamic>).map((e) {
-      // print(e);
       final utcDateTime = DateTime.parse(e['created_at']);
       final localDateTime = utcDateTime.toLocal();
       final localDate = DateFormat('yyyy-MM-dd').format(localDateTime);
@@ -101,7 +97,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
         status: e['active'] == 'true' ? AccountStatus.activated : AccountStatus.deactivated
       );
     }).toList();
-    // final u = await MockApiService.instance.getUsers();
     final u = (json.decode(prefs.getString('users') ?? '[]') as List<dynamic>).map((e) {
       final utcDateTime = DateTime.parse(e['created_at']);
       final localDateTime = utcDateTime.toLocal();
@@ -126,7 +121,6 @@ class _AccountsScreenState extends State<AccountsScreen> {
         status: e['status'] == 'true' ? AccountStatus.activated : AccountStatus.deactivated
       );
     }).toList();
-    // final a = await MockApiService.instance.getITAdmins();
     final a = (json.decode(prefs.getString('itAdmins') ?? '[]') as List<dynamic>).map((e) {
       final utcDateTime = DateTime.parse(e['created_at']);
       final localDateTime = utcDateTime.toLocal();

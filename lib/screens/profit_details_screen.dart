@@ -7,7 +7,6 @@ import 'package:shared_preferences/shared_preferences.dart';
 import '../design_tokens.dart';
 import '../l10n/strings_ar.dart';
 import '../models/models.dart';
-import '../services/mock_api_service.dart';
 import '../widgets/common_widgets.dart';
 
 class ProfitDetailsScreen extends StatefulWidget {
@@ -24,7 +23,6 @@ class _ProfitDetailsScreenState extends State<ProfitDetailsScreen> {
   @override
   void initState() {
     super.initState();
-    // MockApiService.instance.getOrder(widget.orderId).then((o) { if (mounted) setState(() => _order = o); });
     loadOrder();
   }
 

@@ -8,13 +8,7 @@ enum AccountStatus { created, pending, activated, deactivated, deleted }
 
 enum OrderStatus { pending, confirmed, inProgress, delivered, cancelled, refunded }
 
-enum SettlementStatus { pending, partiallySettled, settled, failed }
-
-enum DisputeStatus { open, investigating, resolved }
-
 enum CommissionBase { orderTotal, orderSubtotal, deliveryFee, serviceFee }
-
-enum RuleScope { global, typeStores, typeDrivers, typeUsers, accountSpecific }
 
 // ─── Models ────────────────────────────────────────────────
 class Store {
@@ -135,108 +129,6 @@ class OrderEntity {
     required this.commissionBase, required this.commissionRule,
     required this.commissionRate, required this.ownerProfit,
     required this.status, required this.paymentMethod, required this.city,
-  });
-}
-
-class CommissionRule {
-  final String id;
-  final String name;
-  final RuleScope scope;
-  final String appliesTo;
-  final double commissionRate;
-  final CommissionBase commissionBase;
-  final String effectiveDate;
-  final bool enabled;
-  final int priority;
-  final String createdAt;
-  final String createdBy;
-  final String note;
-  final List<RuleHistoryEntry> history;
-
-  const CommissionRule({
-    required this.id, required this.name, required this.scope,
-    required this.appliesTo, required this.commissionRate,
-    required this.commissionBase, required this.effectiveDate,
-    required this.enabled, required this.priority, required this.createdAt,
-    required this.createdBy, required this.note, required this.history,
-  });
-}
-
-class RuleHistoryEntry {
-  final String date;
-  final String actor;
-  final double oldRate;
-  final double newRate;
-  final String reason;
-
-  const RuleHistoryEntry({
-    required this.date, required this.actor,
-    required this.oldRate, required this.newRate, required this.reason,
-  });
-}
-
-class Settlement {
-  final String id;
-  final String date;
-  final String entityType;
-  final String entityId;
-  final String entityName;
-  final double amount;
-  final String method;
-  final String referenceId;
-  final String notes;
-  final String status;
-  final String period;
-
-  const Settlement({
-    required this.id, required this.date, required this.entityType,
-    required this.entityId, required this.entityName, required this.amount,
-    required this.method, required this.referenceId, required this.notes,
-    required this.status, required this.period,
-  });
-}
-
-class AuditLog {
-  final String id;
-  final String date;
-  final String time;
-  final String actor;
-  final String actorRole;
-  final String action;
-  final String target;
-  final String targetType;
-  final String? before;
-  final String? after;
-  final String? notes;
-  final String severity; // 'info' | 'warning' | 'critical'
-
-  const AuditLog({
-    required this.id, required this.date, required this.time,
-    required this.actor, required this.actorRole, required this.action,
-    required this.target, required this.targetType,
-    this.before, this.after, this.notes, required this.severity,
-  });
-}
-
-class Dispute {
-  final String id;
-  final String date;
-  final String entityType;
-  final String entityId;
-  final String entityName;
-  final String type;
-  final String description;
-  final DisputeStatus status;
-  final String severity; // 'low' | 'medium' | 'high'
-  final double? amount;
-  final String? resolvedAt;
-  final String? notes;
-
-  const Dispute({
-    required this.id, required this.date, required this.entityType,
-    required this.entityId, required this.entityName, required this.type,
-    required this.description, required this.status, required this.severity,
-    this.amount, this.resolvedAt, this.notes,
   });
 }
 

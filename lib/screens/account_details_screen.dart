@@ -7,7 +7,6 @@ import 'package:sahalat_owner/main.dart';
 import '../design_tokens.dart';
 import '../l10n/strings_ar.dart';
 import '../models/models.dart';
-import '../services/mock_api_service.dart';
 import '../widgets/common_widgets.dart';
 
 class AccountDetailsScreen extends StatefulWidget {
@@ -31,8 +30,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
 
   Future<void> _load() async {
     dynamic e;
-      // await MockApiService.instance.getStores()).firstWhere((s) => s.id == widget.accountId, orElse: () => throw Exception()
-      // = (await MockApiService.instance.getUsers()).firstWhere((u) => u.id == widget.accountId, orElse: () => throw Exception());
     if (widget.accountType == 'stores'){
       final s = prefs!.getString("stores") != null?
         json.decode(prefs!.getString('stores') ?? '[]')
@@ -191,11 +188,6 @@ class _AccountDetailsScreenState extends State<AccountDetailsScreen> {
         title: name,
         subtitle: '${widget.accountId} · ${_accountTypeLabel()}',
         showBack: true,
-        // rightElement: Container(
-        //   width: 36, height: 36,
-        //   decoration: BoxDecoration(color: AppColors.gray100, borderRadius: BorderRadius.circular(AppRadius.md)),
-        //   child: const Icon(Icons.edit_outlined, size: 16, color: AppColors.textSecondary),
-        // ),
       ),
       body: ListView(
         padding: const EdgeInsets.all(AppSpacing.md),

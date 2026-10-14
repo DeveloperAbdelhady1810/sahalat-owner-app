@@ -1,6 +1,4 @@
 // ============================================================
-// Sahalat Owner – Design Tokens (Flutter)
-// Mirrors: /src/app/designTokens.ts (React)
 // ============================================================
 
 import 'package:flutter/material.dart';

@@ -12,7 +12,6 @@ import 'package:sahalat_owner/main.dart';
 import '../design_tokens.dart';
 import '../l10n/strings_ar.dart';
 import '../models/models.dart';
-import '../services/mock_api_service.dart';
 import '../widgets/common_widgets.dart';
 
 class ProfitsScreen extends StatefulWidget {
@@ -61,7 +60,6 @@ class _ProfitsScreenState extends State<ProfitsScreen> {
   }
 
   Future<void> _loadOrders() async {
-    // final orders = await MockApiService.instance.getOrders();
     final orders = prefs!.getString("orders") != null?
       json.decode(prefs!.getString('orders') ?? '[]')
       : [];
@@ -101,30 +99,6 @@ class _ProfitsScreenState extends State<ProfitsScreen> {
       )
       );
     }
-    // final List<OrderEntity> allOrders = orders.map((order){
-    //   return OrderEntity(
-    //     id: order['id'].toString(),
-    //     date: order['created_at'],
-    //     time: order['created_at'],
-    //     store: order['seller']!=null?(id:order['seller']['id'].toString(),name:order['seller']['name']??''):(id: '', name: ''),
-    //     driver: (id:order['delivery']['id'].toString() ,name:order['delivery']['name']),
-    //     user: (id:order['user']['id'].toString(),name:order['user']['name']),
-    //     subtotal: double.parse(order['total'].toString()),
-    //     deliveryFee: double.parse(order['deliveryTotal']??"0"),
-    //     serviceFee: double.parse(order['total'].toString())*0.05,
-    //     discount: order['discount']??0,
-    //     tax: double.parse(order['total'].toString())*0.14,
-    //     total: double.parse(order['total'].toString()),
-    //     commissionBase: CommissionBase.orderTotal,
-    //     commissionRule: 'fixed',
-    //     commissionRate: 0.05,
-    //     ownerProfit: double.parse(order['total'].toString())*0.05,
-    //     status: OrderStatus.confirmed,
-    //     paymentMethod: order['payment_method']??'Paymob',
-    //     city: order['city']??''
-    //   );
-    // }).toList();
-    // print(allOrders);
     if (mounted) setState(() { _orders = allOrders; _filtered = allOrders; _loading = false; });
   }
 
